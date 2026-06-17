@@ -1,0 +1,137 @@
+@import "tailwindcss";
+@source "./**/*.{tsx,ts,jsx,js}";
+@source "../index.html";
+
+/* ─── Google Fonts ─────────────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&display=swap");
+
+/* ─── OKLCH Design Tokens ──────────────────────────────── */
+@theme {
+  /* Primary — Deep Indigo */
+  --color-primary-50:  oklch(0.97 0.02 262);
+  --color-primary-100: oklch(0.93 0.05 262);
+  --color-primary-200: oklch(0.86 0.09 262);
+  --color-primary-300: oklch(0.76 0.14 262);
+  --color-primary-400: oklch(0.64 0.18 262);
+  --color-primary-500: oklch(0.54 0.21 262);
+  --color-primary-600: oklch(0.47 0.22 262);
+  --color-primary-700: oklch(0.40 0.21 262);
+  --color-primary-800: oklch(0.32 0.18 262);
+  --color-primary-900: oklch(0.24 0.14 262);
+
+  /* Accent — Warm Violet */
+  --color-accent-50:   oklch(0.97 0.02 290);
+  --color-accent-100:  oklch(0.92 0.05 290);
+  --color-accent-200:  oklch(0.84 0.10 290);
+  --color-accent-300:  oklch(0.74 0.16 290);
+  --color-accent-400:  oklch(0.64 0.20 290);
+  --color-accent-500:  oklch(0.54 0.24 290);
+  --color-accent-600:  oklch(0.46 0.23 290);
+  --color-accent-700:  oklch(0.38 0.21 290);
+  --color-accent-800:  oklch(0.30 0.17 290);
+  --color-accent-900:  oklch(0.22 0.12 290);
+
+  /* Highlight — Amber Gold */
+  --color-highlight-50:  oklch(0.98 0.02 65);
+  --color-highlight-100: oklch(0.95 0.06 65);
+  --color-highlight-200: oklch(0.90 0.12 65);
+  --color-highlight-300: oklch(0.84 0.16 65);
+  --color-highlight-400: oklch(0.75 0.18 65);
+  --color-highlight-500: oklch(0.66 0.19 65);
+  --color-highlight-600: oklch(0.55 0.17 65);
+
+  /* Typography */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Border radius */
+  --radius: 0.75rem;
+}
+
+/* ─── Base styles ──────────────────────────────────────── */
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+* {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Disable transitions on page load to avoid flash */
+.no-transition * {
+  transition: none !important;
+}
+
+/* ─── Gradient text ──────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, oklch(0.54 0.21 262), oklch(0.54 0.24 290));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-gold {
+  background: linear-gradient(135deg, oklch(0.75 0.18 65), oklch(0.66 0.19 65));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Animations ─────────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes orbit {
+  from { transform: rotate(0deg)   translateX(90px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(90px) rotate(-360deg); }
+}
+
+.animate-float     { animation: float 5s ease-in-out infinite; }
+.animate-fade-up   { animation: fadeUp 0.5s ease both; }
+.animate-shimmer   {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+/* ─── Card glow on hover ─────────────────────────────────── */
+.card-hover-glow:hover {
+  box-shadow: 0 8px 32px -4px oklch(0.47 0.22 262 / 0.18), 0 2px 8px -2px oklch(0.47 0.22 262 / 0.12);
+}
+.card-hover-glow-accent:hover {
+  box-shadow: 0 8px 32px -4px oklch(0.54 0.24 290 / 0.18), 0 2px 8px -2px oklch(0.54 0.24 290 / 0.12);
+}
+
+/* ─── Glass card ─────────────────────────────────────────── */
+.glass {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* ─── Noise texture overlay (subtle) ───────────────────────  */
+.noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: inherit;
+}
