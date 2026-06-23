@@ -3,7 +3,8 @@ services:
     name: qliniqit-v2
     runtime: node
     plan: free
-    buildCommand: npm install -g pnpm && pnpm install && pnpm run build
+    region: oregon
+    buildCommand: npm install -g pnpm@9 && pnpm install --frozen-lockfile && pnpm run build
     startCommand: node dist/index.js
     healthCheckPath: /api/health
     envVars:
@@ -11,3 +12,25 @@ services:
         value: production
       - key: PORT
         value: 3000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: UNSUBSCRIBE_SECRET
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_S3_BUCKET
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: VITE_APP_URL
+        value: https://qliniqit-v2.onrender.com
