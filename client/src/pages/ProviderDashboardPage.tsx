@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import { Link } from "wouter";
 import { formatDate, formatTime } from "../lib/utils";
 import { CheckCircle2, Video } from "lucide-react";
+import ProviderQRCard from "../components/ProviderQRCard";
 
 export default function ProviderDashboardPage() {
   const { user, loading } = useAuth();
@@ -15,6 +16,7 @@ export default function ProviderDashboardPage() {
   const [saved, setSaved] = useState(false);
 
   const { data: profile } = trpc.auth.me.useQuery(undefined, { enabled: !!user });
+  const { data: providerProfile } = trpc.providers.myProfile.useQuery(undefined, { enabled: !!user });
   const { data: appointments, refetch } = trpc.booking.myAppointments.useQuery(
     { limit: 20 },
     { enabled: !!user }
@@ -101,6 +103,50 @@ export default function ProviderDashboardPage() {
                 cancelling={cancelMutation.isPending}
               />
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* Clinic door QR card */}
+      {providerProfile?.slug && (
+        <section className="mb-8">
+          <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(150deg,#0f1e3d 0%,#1a3a6e 100%)" }}>
+            <div className="p-6 pb-0">
+              <h2 className="text-lg font-bold text-white mb-1">Your Clinic QR Card</h2>
+              <p className="text-sm mb-6" style={{ color: "rgba(147,197,253,0.8)" }}>
+                Print this card and place it on your clinic door so patients can scan &amp; book instantly.
+              </p>
+            </div>
+            <div className="flex flex-col lg:flex-row gap-0">
+              <div className="p-6 pt-0 flex justify-center lg:justify-start">
+                <ProviderQRCard
+                  slug={providerProfile.slug}
+                  name={providerProfile.name ?? ""}
+                  specialty={providerProfile.specialtyName}
+                  avatarUrl={providerProfile.avatarUrl}
+                  city={providerProfile.city}
+                  verified={providerProfile.verificationStatus === "verified"}
+                />
+              </div>
+              <div className="flex-1 p-6 flex flex-col justify-center gap-4">
+                {[
+                  { step: "1", title: "Print the card", desc: "Click \"Print card\" to open a print-ready version. Use A5 or A6 paper for best results." },
+                  { step: "2", title: "Place it visibly", desc: "Stick it on your clinic door, reception desk, or waiting room so patients notice it immediately." },
+                  { step: "3", title: "Patients scan & book", desc: "One scan takes them directly to your Qliniqit profile where they can book an appointment instantly." },
+                ].map((item) => (
+                  <div key={item.step} className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-sm"
+                      style={{ background: "rgba(59,130,246,0.25)", color: "#93c5fd" }}>
+                      {item.step}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-white text-sm">{item.title}</p>
+                      <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
       )}

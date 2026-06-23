@@ -196,6 +196,31 @@ export const providersRouter = router({
     }),
 
   /**
+   * Get the authenticated provider's own profile (for dashboard/QR card).
+   */
+  myProfile: providerProcedure.query(async ({ ctx }) => {
+    const db = requireDb();
+    const [row] = await db
+      .select({
+        slug: providerProfiles.slug,
+        name: users.name,
+        avatarUrl: users.avatarUrl,
+        specialtyName: specialties.nameEn,
+        providerType: providerProfiles.providerType,
+        city: providerProfiles.city,
+        countryCode: providerProfiles.countryCode,
+        verificationStatus: providerProfiles.verificationStatus,
+      })
+      .from(providerProfiles)
+      .innerJoin(users, eq(users.id, providerProfiles.userId))
+      .leftJoin(specialties, eq(specialties.id, providerProfiles.specialtyId))
+      .where(eq(providerProfiles.userId, ctx.user.id))
+      .limit(1);
+
+    return row ?? null;
+  }),
+
+  /**
    * Update own provider profile.
    */
   updateProfile: providerProcedure
