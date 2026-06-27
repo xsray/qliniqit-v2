@@ -42,7 +42,6 @@ const CARD_GRADS = [
   "linear-gradient(90deg, oklch(0.76 0.17 65), oklch(0.47 0.22 262))",
 ];
 
-const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
 
 export default function ProvidersPage() {
   const searchString = useSearch();
@@ -132,23 +131,21 @@ export default function ProvidersPage() {
     );
   }
 
-  // ── Google Maps embed URL ─────────────────────────────────────────────────────
-  function buildMapSrc(): string | null {
-    if (!MAPS_KEY) return null;
+  // ── Map embed URL — OpenStreetMap (free, no key required) ───────────────────
+  function buildMapSrc(): string {
     const specialty = SPECIALTY_CHIPS.find(c => c.value === activeChip && c.value !== "");
-    const qParts: string[] = [];
-    if (specialty) qParts.push(specialty.label);
-    else qParts.push("healthcare providers");
-    if (city) qParts.push(`in ${city}`);
-    const q = encodeURIComponent(qParts.join(" "));
+    const searchTerm = specialty ? specialty.label : (query || "healthcare");
 
     if (userLat !== null && userLng !== null) {
-      return `https://www.google.com/maps/embed/v1/search?key=${MAPS_KEY}&q=${q}&center=${userLat},${userLng}&zoom=12`;
+      // User location known — centre on them, zoom in
+      const bbox = 0.08;
+      return `https://www.openstreetmap.org/export/embed.html?bbox=${userLng - bbox},${userLat - bbox},${userLng + bbox},${userLat + bbox}&layer=mapnik&marker=${userLat},${userLng}`;
     }
     if (city) {
-      return `https://www.google.com/maps/embed/v1/search?key=${MAPS_KEY}&q=${q}&zoom=12`;
+      return `https://www.openstreetmap.org/export/embed.html?query=${encodeURIComponent(searchTerm + " " + city)}&layer=mapnik`;
     }
-    return `https://www.google.com/maps/embed/v1/search?key=${MAPS_KEY}&q=${q}&zoom=4`;
+    // Generic world view
+    return `https://www.openstreetmap.org/export/embed.html?bbox=-180,-85,180,85&layer=mapnik`;
   }
 
   // Deep-link to Google Maps for a specific provider card
@@ -541,55 +538,28 @@ export default function ProvidersPage() {
 
         {/* ── Google Map panel ──────────────────────────────────── */}
         {(view === "map" || view === "list") && (
-          <div className={`${view === "map" ? "h-[calc(100vh-160px)] min-h-[500px]" : "hidden md:block md:sticky md:top-[120px] md:h-[calc(100vh-180px)] md:min-h-[500px]"} rounded-2xl overflow-hidden border border-gray-200 shadow-lg`}>
-            {mapSrc ? (
-              <iframe
-                key={mapSrc}
-                src={mapSrc}
-                width="100%"
-                height="100%"
-                style={{ border: 0, display: "block" }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Provider locations map"
-              />
-            ) : (
-              /* Placeholder shown when no API key is configured */
-              <div className="w-full h-full flex flex-col items-center justify-center gap-4 px-8 text-center"
-                style={{ background: "linear-gradient(145deg, oklch(0.96 0.02 262), oklch(0.92 0.04 285))" }}>
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                  style={{ background: "linear-gradient(135deg, oklch(0.47 0.22 262), oklch(0.54 0.24 290))" }}>
-                  <Map className="w-8 h-8 text-white" strokeWidth={1.5}/>
-                </div>
-                <div>
-                  <p className="font-bold text-gray-900 text-lg mb-1">Google Maps</p>
-                  <p className="text-gray-500 text-sm leading-relaxed">
-                    Add your API key to enable the interactive map.
-                  </p>
-                  <p className="mt-3 font-mono text-xs bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-700 inline-block">
-                    VITE_GOOGLE_MAPS_API_KEY=your_key
-                  </p>
-                  <p className="mt-2 text-xs text-gray-400">
-                    in <span className="font-mono">.env</span> — requires Maps Embed API enabled
-                  </p>
-                </div>
-
-                {/* Still show a static link to Google Maps */}
-                {(city || query) && (
-                  <a
-                    href={`https://www.google.com/maps/search/${encodeURIComponent((activeSpecialty?.label ?? query ?? "healthcare") + (city ? ` in ${city}` : ""))}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-flex items-center gap-2 text-sm font-bold text-white px-5 py-2.5 rounded-xl"
-                    style={{ background: "linear-gradient(135deg, oklch(0.47 0.22 262), oklch(0.54 0.24 290))" }}
-                  >
-                    <Map className="w-4 h-4" strokeWidth={2}/>
-                    Open in Google Maps
-                  </a>
-                )}
-              </div>
-            )}
+          <div className={`${view === "map" ? "h-[calc(100vh-160px)] min-h-[500px]" : "hidden md:block md:sticky md:top-[120px] md:h-[calc(100vh-180px)] md:min-h-[500px]"} rounded-2xl overflow-hidden border border-gray-200 shadow-lg relative`}>
+            <iframe
+              key={mapSrc}
+              src={mapSrc}
+              width="100%"
+              height="100%"
+              style={{ border: 0, display: "block" }}
+              allowFullScreen
+              loading="lazy"
+              title="Provider locations map"
+            />
+            {/* Open in Google Maps deep link — always visible */}
+            <a
+              href={`https://www.google.com/maps/search/${encodeURIComponent((activeSpecialty?.label ?? query ?? "healthcare providers") + (city ? ` in ${city}` : ""))}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 text-xs font-bold text-white px-3 py-2 rounded-xl shadow-lg"
+              style={{ background: "linear-gradient(135deg, oklch(0.47 0.22 262), oklch(0.54 0.24 290))" }}
+            >
+              <Map className="w-3.5 h-3.5" strokeWidth={2}/>
+              Open in Google Maps
+            </a>
           </div>
         )}
       </div>
